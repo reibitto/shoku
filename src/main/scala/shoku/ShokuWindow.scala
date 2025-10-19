@@ -67,10 +67,11 @@ object ShokuWindow {
 
     frame.setSize(targetWidth, targetHeight)
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
+    frame.setAlwaysOnTop(true)
 
     val hideBorderButton = new JButton("Hide border")
     hideBorderButton.setFocusable(false)
-    hideBorderButton.setToolTipText("Hide border (Q)")
+    hideBorderButton.setToolTipText("Hide border (E)")
 
     val window = new ShokuWindow(frame, hideBorderButton)
 
@@ -86,6 +87,9 @@ object ShokuWindow {
       override def keyPressed(e: KeyEvent): Unit =
         (e.getKeyCode, e.isShiftDown) match {
           case (KeyEvent.VK_Q, _) =>
+            System.exit(0)
+
+          case (KeyEvent.VK_E, _) =>
             window.cycleDisplayMode()
 
           case (KeyEvent.VK_W, false) =>
@@ -119,6 +123,16 @@ object ShokuWindow {
           case (KeyEvent.VK_D, true) =>
             val size = window.frame.getSize
             window.frame.setSize(size.width + 10, size.height)
+
+          case (KeyEvent.VK_RIGHT, true) =>
+            val size = window.frame.getSize
+            val targetWidth = screenSize.width - window.frame.getX
+            window.frame.setSize(targetWidth, size.height)
+
+          case (KeyEvent.VK_DOWN, true) =>
+            val size = window.frame.getSize
+            val targetHeight = screenSize.height - window.frame.getY
+            window.frame.setSize(size.width, targetHeight)
 
           case _ => ()
 
