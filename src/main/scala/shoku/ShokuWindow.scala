@@ -1,11 +1,12 @@
 package shoku
 
-import java.awt.event._
-import java.awt.{ Color, FlowLayout }
-import javax.swing.{ JButton, JFrame, WindowConstants }
+import java.awt.{Color, FlowLayout}
+import java.awt.event.*
+import javax.swing.{JButton, JFrame, WindowConstants}
 
 // TODO: Put all state into 1 atomic Ref
 class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
+
   def displayMode: ShokuDisplayMode =
     if (frame.isUndecorated) {
       ShokuDisplayMode.NoDistractions
@@ -55,9 +56,10 @@ class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
 }
 
 object ShokuWindow {
+
   def make(width: Int = 300, height: Int = 200): ShokuWindow = {
     var pressedLocation: Option[(Int, Int)] = None
-    val frame                               = new JFrame("蝕")
+    val frame = new JFrame("蝕")
 
     frame.setSize(width, height)
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
