@@ -1,6 +1,6 @@
 package shoku
 
-import java.awt.{Color, FlowLayout}
+import java.awt.{Color, FlowLayout, Toolkit}
 import java.awt.event.*
 import javax.swing.{JButton, JFrame, WindowConstants}
 
@@ -57,11 +57,15 @@ class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
 
 object ShokuWindow {
 
-  def make(width: Int = 300, height: Int = 200): ShokuWindow = {
+  def make(): ShokuWindow = {
+    val screenSize = Toolkit.getDefaultToolkit.getScreenSize
+    val targetWidth = screenSize.width / 2
+    val targetHeight = screenSize.height / 4
+
     var pressedLocation: Option[(Int, Int)] = None
     val frame = new JFrame("蝕")
 
-    frame.setSize(width, height)
+    frame.setSize(targetWidth, targetHeight)
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
 
     val hideBorderButton = new JButton("Hide border")
