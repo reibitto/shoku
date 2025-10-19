@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 import sbtwelcome._
 
-ThisBuild / scalaVersion := "2.13.5"
+ThisBuild / scalaVersion := "2.13.17"
 ThisBuild / version      := "0.1.0"
 
 lazy val root = project
