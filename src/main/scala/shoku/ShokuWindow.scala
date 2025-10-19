@@ -65,8 +65,6 @@ object ShokuWindow {
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
 
     val hideBorderButton = new JButton("Hide border")
-    hideBorderButton.setBackground(Color.BLACK)
-    hideBorderButton.setForeground(Color.WHITE)
     hideBorderButton.setFocusable(false)
     hideBorderButton.setToolTipText("Hide border (Q)")
 
