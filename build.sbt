@@ -46,5 +46,12 @@ lazy val root = project
       "-Ybackend-parallelism",
       "16",
       "-Wunnamed-boolean-literal"
+    ),
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio" % "2.1.22",
+      "io.circe" %% "circe-core" % "0.14.15",
+      "io.circe" %% "circe-parser" % "0.14.15",
+      "com.beachape" %% "enumeratum" % "1.9.0",
+      "com.beachape" %% "enumeratum-circe" % "1.9.0"
     )
   )

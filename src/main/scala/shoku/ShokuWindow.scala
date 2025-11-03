@@ -1,11 +1,14 @@
 package shoku
 
+import shoku.config.ShokuConfig
+import zio.*
+
 import java.awt.{Color, FlowLayout, Toolkit}
 import java.awt.event.*
 import javax.swing.{JButton, JFrame, WindowConstants}
 
 // TODO: Put all state into 1 atomic Ref
-class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
+class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton, config: ShokuConfig) {
 
   def displayMode: ShokuDisplayMode =
     if (frame.isUndecorated) {
@@ -18,19 +21,18 @@ class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
     val oldFrame = frame
     oldFrame.dispose()
 
-    val window = ShokuWindow.make()
+    val window = ShokuWindow.make(config)
     frame = window.frame
     noDistractionsButton = window.noDistractionsButton
-    frame.setLocation(oldFrame.getX, oldFrame.getY)
-    frame.setSize(oldFrame.getWidth, oldFrame.getHeight)
+    frame.setBounds(oldFrame.getX, oldFrame.getY, oldFrame.getWidth, oldFrame.getHeight)
 
     f
 
     setVisible(true)
   }
 
-  def setDisplayMode(mode: ShokuDisplayMode): Unit =
-    recreateFrame {
+  def setDisplayMode(mode: ShokuDisplayMode, shouldRecreateFrame: Boolean = true): Unit = {
+    def setMode(): Unit =
       mode match {
         case ShokuDisplayMode.PlainWindow =>
           frame.setUndecorated(false)
@@ -40,7 +42,14 @@ class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
           frame.setUndecorated(true)
           noDistractionsButton.setVisible(false)
       }
-    }
+
+    if (shouldRecreateFrame)
+      recreateFrame {
+        setMode()
+      }
+    else
+      setMode()
+  }
 
   def cycleDisplayMode(): Unit =
     displayMode match {
@@ -53,19 +62,34 @@ class ShokuWindow(var frame: JFrame, var noDistractionsButton: JButton) {
 
   def setVisible(visible: Boolean): Unit =
     frame.setVisible(visible)
+
+  def close(): Task[Unit] = {
+    val bounds = frame.getBounds
+
+    for {
+      _ <- ZIO.succeed(frame.setVisible(false))
+      _ <- ShokuConfig.saveToFile(
+             ShokuConfig.defaultConfigPath,
+             ShokuConfig(
+               bounds.x,
+               bounds.y,
+               bounds.width,
+               bounds.height,
+               displayMode
+             )
+           )
+      _ <- ZIO.succeed(frame.dispose())
+    } yield ()
+  }
 }
 
 object ShokuWindow {
 
-  def make(): ShokuWindow = {
-    val screenSize = Toolkit.getDefaultToolkit.getScreenSize
-    val targetWidth = screenSize.width / 2
-    val targetHeight = screenSize.height / 4
-
+  def make(config: ShokuConfig): ShokuWindow = {
     var pressedLocation: Option[(Int, Int)] = None
     val frame = new JFrame("蝕")
 
-    frame.setSize(targetWidth, targetHeight)
+    frame.setBounds(config.x, config.y, config.width, config.height)
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
     frame.setAlwaysOnTop(true)
 
@@ -73,7 +97,8 @@ object ShokuWindow {
     hideBorderButton.setFocusable(false)
     hideBorderButton.setToolTipText("Hide border (E)")
 
-    val window = new ShokuWindow(frame, hideBorderButton)
+    val window = new ShokuWindow(frame, hideBorderButton, config)
+    window.setDisplayMode(config.displayMode, shouldRecreateFrame = false)
 
     hideBorderButton.addActionListener { (_: ActionEvent) =>
       window.cycleDisplayMode()
@@ -87,7 +112,11 @@ object ShokuWindow {
       override def keyPressed(e: KeyEvent): Unit =
         (e.getKeyCode, e.isShiftDown) match {
           case (KeyEvent.VK_Q, _) =>
-            System.exit(0)
+            Unsafe.unsafe { implicit u =>
+              Runtime.default.unsafe.run {
+                window.close()
+              }.getOrThrowFiberFailure()
+            }
 
           case (KeyEvent.VK_E, _) =>
             window.cycleDisplayMode()
@@ -125,14 +154,16 @@ object ShokuWindow {
             window.frame.setSize(size.width + 10, size.height)
 
           case (KeyEvent.VK_RIGHT, true) =>
-            val size = window.frame.getSize
+            val screenSize = Toolkit.getDefaultToolkit.getScreenSize
+            val windowSize = window.frame.getSize
             val targetWidth = screenSize.width - window.frame.getX
-            window.frame.setSize(targetWidth, size.height)
+            window.frame.setSize(targetWidth, windowSize.height)
 
           case (KeyEvent.VK_DOWN, true) =>
-            val size = window.frame.getSize
+            val screenSize = Toolkit.getDefaultToolkit.getScreenSize
+            val windowSize = window.frame.getSize
             val targetHeight = screenSize.height - window.frame.getY
-            window.frame.setSize(size.width, targetHeight)
+            window.frame.setSize(windowSize.width, targetHeight)
 
           case _ => ()
 
@@ -153,6 +184,15 @@ object ShokuWindow {
           val dx = e.getX - x
           val dy = e.getY - y
           frame.setLocation(frame.getX + dx, frame.getY + dy)
+        }
+    })
+
+    frame.addWindowListener(new WindowAdapter {
+      override def windowClosing(e: WindowEvent): Unit =
+        Unsafe.unsafe { implicit u =>
+          Runtime.default.unsafe.run {
+            window.close()
+          }.getOrThrowFiberFailure()
         }
     })
 
