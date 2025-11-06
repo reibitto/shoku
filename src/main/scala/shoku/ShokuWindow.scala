@@ -121,6 +121,9 @@ object ShokuWindow {
           case (KeyEvent.VK_E, _) =>
             window.cycleDisplayMode()
 
+          case (KeyEvent.VK_H, _) =>
+            frame.setState(java.awt.Frame.ICONIFIED)
+
           case (KeyEvent.VK_W, false) =>
             val location = window.frame.getLocation
             window.frame.setLocation(location.x, location.y - 10)
