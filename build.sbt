@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 import sbtwelcome._
 
-ThisBuild / scalaVersion := "2.13.17"
+ThisBuild / scalaVersion := "2.13.18"
 ThisBuild / version := "0.1.0"
 
 lazy val root = project
@@ -48,7 +48,7 @@ lazy val root = project
       "-Wunnamed-boolean-literal"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % "2.1.22",
+      "dev.zio" %% "zio" % "2.1.24",
       "io.circe" %% "circe-core" % "0.14.15",
       "io.circe" %% "circe-parser" % "0.14.15",
       "com.beachape" %% "enumeratum" % "1.9.1",
