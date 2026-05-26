@@ -48,7 +48,7 @@ lazy val root = project
       "-Wunnamed-boolean-literal"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % "2.1.25",
+      "dev.zio" %% "zio" % "2.1.26",
       "io.circe" %% "circe-core" % "0.14.15",
       "io.circe" %% "circe-parser" % "0.14.15",
       "com.beachape" %% "enumeratum" % "1.9.7",
