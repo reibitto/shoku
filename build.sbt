@@ -51,7 +51,7 @@ lazy val root = project
       "dev.zio" %% "zio" % "2.1.26",
       "io.circe" %% "circe-core" % "0.14.15",
       "io.circe" %% "circe-parser" % "0.14.15",
-      "com.beachape" %% "enumeratum" % "1.9.7",
-      "com.beachape" %% "enumeratum-circe" % "1.9.7"
+      "com.beachape" %% "enumeratum" % "1.9.8",
+      "com.beachape" %% "enumeratum-circe" % "1.9.8"
     )
   )
